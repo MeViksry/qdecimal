@@ -55,6 +55,8 @@ jobs:
         run: go run ./internal/qdecimalci deps
 
       - name: Run race detector
+        env:
+          CGO_ENABLED: '1'
         run: go test -race ./...
 
       - name: Run coverage
