@@ -4,7 +4,7 @@ This repository keeps `qdecimal` as a standalone Go module at the repository roo
 
 ## Automated Releases
 
-The `qdecimal Release` workflow runs on GitHub-hosted Ubuntu runners.
+The `qdecimal Release` workflow runs on self-hosted runners.
 
 - Pushes to `main` publish or update the `nightly` prerelease.
 - Tags matching `vMAJOR.MINOR.PATCH` publish versioned qdecimal source archives

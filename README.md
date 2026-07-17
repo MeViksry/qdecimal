@@ -447,16 +447,16 @@ tests with `QDECIMAL_STRESS=1`. `make bench-smoke` executes representative
 parser, arithmetic, Fixed64, Money, power, and append-binary benchmarks so hot
 paths keep compiling and publishing cannot drift away from the benchmark suite.
 The normal test suite runs smaller versions of the same stress checks so CI
-catches regressions quickly, while GitHub-hosted release gates exercise the heavier profile.
+catches regressions quickly, while self-hosted release gates exercise the heavier profile.
 
 See `HARDENING.md` for the issue-class coverage matrix and audit evidence.
 
 ## Releases
 
-In this repository, qdecimal releases use the GitHub-hosted `qdecimal Release`
+In this repository, qdecimal releases use the self-hosted `qdecimal Release`
 workflow. Pushes to `main` publish `nightly`; versioned releases use
 Go-native tags such as `v0.1.0`. See `RELEASE.md`.
 
 Go libraries are not normally published through GitHub Packages. qdecimal is
 published the standard Go way: a signed Git tag, a GitHub Release archive, and a
-Go proxy/pkg.go.dev indexing step from the GitHub-hosted release workflow.
+Go proxy/pkg.go.dev indexing step from the self-hosted release workflow.
