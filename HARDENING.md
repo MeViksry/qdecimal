@@ -54,16 +54,16 @@ go test -run '^$' -bench . -benchmem ./...
 | Parser resource exhaustion | Default parse options cap raw digits, exponent length, expanded coefficient digits, and scale; trusted callers can override limits explicitly. | `ParseOptions.MaxDigits`, `ParseOptions.MaxScale`, `ParseOptions.MaxExponentDigits`, `ErrLimitExceeded`, `TestParsingBoundaries` |
 | Invalid inputs causing panics | Public non-`Must*` APIs return errors; `Must*` helpers are explicit. | `TestInvalidInputsReturnErrorsWithoutPanic` |
 | Race-prone global caches | Runtime arithmetic does not mutate package-global precision or factorial tables. | Race detector via `make check`; `TestStressConcurrentHotPaths` |
-| Test visibility drift | `make coverage` produces an atomic coverage profile, function report, and minimum total coverage gate. | `Makefile`, self-hosted CI/release coverage steps |
-| Performance benchmark drift | Representative parser, arithmetic, exact aggregates, Fixed64 aggregates, Fixed64 tick quantization, Fixed64 hot paths, Money, money aggregates, power, append-text, and append-binary benchmarks run in the audit gate. | `make bench-smoke`, self-hosted CI/release benchmark smoke steps |
+| Test visibility drift | `make coverage` produces an atomic coverage profile, function report, and minimum total coverage gate. | `Makefile`, GitHub-hosted CI/release coverage steps |
+| Performance benchmark drift | Representative parser, arithmetic, exact aggregates, Fixed64 aggregates, Fixed64 tick quantization, Fixed64 hot paths, Money, money aggregates, power, append-text, and append-binary benchmarks run in the audit gate. | `make bench-smoke`, GitHub-hosted CI/release benchmark smoke steps |
 | Fixed-scale hot path | `Fixed64` provides checked int64 operations, tick/lot quantization, range checks, clamps, min/max helpers, sum/average helpers, and zero-allocation append-text for bounded-scale ledger/trading loops. | `fixed64.go`, `TestStressFixed64MatchesDecimal`, Fixed64 tests/benchmarks |
 | Currency mismatch bugs | `Money` validates currency codes and rejects cross-currency arithmetic, aggregates, range checks, clamps, and min/max operations. `MoneyContext` repeats those guards while returning context-scaled outputs. | `Money.sameCurrency`, `SumMoney`, `AvgMoney`, `Money.Between`, `Money.Clamp`, `MinMoney`, `MaxMoney`, `MoneyContext.sameCurrency`, money tests |
 | Allocation total drift | Money allocation preserves the rounded total exactly. | `TestMoneyAllocationPreservesRoundedTotal`, `TestStressMoneyAllocationInvariants` |
 | Binary/wire decode robustness | Binary and BSON decoders reject malformed payloads, cap untrusted resource expansion by default, validate length fields with architecture-neutral arithmetic, and are fuzz-tested. | `binary.go`, `bson.go`, `BinaryDecodeOptions`, `DefaultBinaryDecodeOptions()`, `DefaultMaxBSONDecimalTextBytes`, binary/BSON regression tests, fuzz targets |
 | Security/vulnerability drift | CI/release gates run `govulncheck`; core has no third-party runtime dependency. | `Makefile`, `.github/workflows/qdecimal.yml`, `.github/workflows/qdecimal-release.yml`, `SECURITY.md` |
-| Supply-chain dependency drift | `make deps` fails when `go list -m all` contains any external Go module. | `Makefile`, self-hosted CI/release dependency policy steps |
+| Supply-chain dependency drift | `make deps` fails when `go list -m all` contains any external Go module. | `Makefile`, GitHub-hosted CI/release dependency policy steps |
 | Broken public import path | A generated external Go module imports `github.com/MeViksry/qdecimal`, uses finance APIs, and runs under `go test`. | `scripts/consumer-smoke.sh`, `make consumer-smoke` |
-| Release packaging mistakes | Source archives are built by a checked-in guarded script and validated with checksums in `make audit` before publishing; release publishing uses a checked-in Go helper instead of a third-party action on the self-hosted write-token job, and the helper is tested against a fake GitHub REST server. | `scripts/release-archive.sh`, `internal/releasegithub`, `make release-dry-run`, `make release-helper-check`, `qdecimal Release` workflow |
+| Release packaging mistakes | Source archives are built by a checked-in guarded script and validated with checksums in `make audit` before publishing; release publishing uses a checked-in Go helper instead of a third-party action on the GitHub-hosted write-token job, and the helper is tested against a fake GitHub REST server. | `scripts/release-archive.sh`, `internal/releasegithub`, `make release-dry-run`, `make release-helper-check`, `qdecimal Release` workflow |
 
 ## Operational Notes
 
@@ -74,5 +74,4 @@ go test -run '^$' -bench . -benchmem ./...
 - Native driver adapters can wrap qdecimal's dependency-free core. The core
   intentionally avoids hard dependencies on ORM, SQL, BSON, or message-broker
   packages so large systems can choose their own audited integration layer.
-- For public release, run `make audit` on the self-hosted runner profile and
-  publish through the `qdecimal Release` workflow.
+- For public release, run `make audit` locally when desired and publish through the `qdecimal Release` workflow.

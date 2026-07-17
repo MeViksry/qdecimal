@@ -4,7 +4,7 @@ This repository keeps `qdecimal` as a standalone Go module at the repository roo
 
 ## Automated Releases
 
-The `qdecimal Release` workflow runs on self-hosted runners.
+The `qdecimal Release` workflow runs on GitHub-hosted Ubuntu runners.
 
 - Pushes to `main` publish or update the `nightly` prerelease.
 - Tags matching `vMAJOR.MINOR.PATCH` publish versioned qdecimal source archives
@@ -17,9 +17,7 @@ benchmark smoke tests, `go vet`, `govulncheck`, and `go build` before
 publishing.
 The publish job uses the checked-in `internal/releasegithub` helper with a
 job-scoped `contents: write` token instead of a third-party release action, so
-self-hosted runners do not execute external release-publishing action code while
-holding write credentials. CI and release jobs also define explicit timeouts to
-avoid stuck self-hosted jobs.
+the publish job does not execute external release-publishing action code while holding write credentials. CI and release jobs also define explicit timeouts to avoid stuck jobs.
 The equivalent local gate is:
 
 ```bash
