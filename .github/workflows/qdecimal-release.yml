@@ -12,6 +12,7 @@ permissions:
 
 env:
   GO_VERSION: '1.26.x'
+  GHCR_IMAGE: qdecimal
 
 concurrency:
   group: qdecimal-release-${{ github.ref }}
@@ -109,6 +110,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: write
+      packages: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -128,6 +130,7 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: false
+      - uses: oras-project/setup-oras@v1
 
       - name: Prepare qdecimal release metadata
         id: meta
@@ -186,6 +189,41 @@ jobs:
           dist_dir="${RUNNER_TEMP}/qdecimal-release-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           dist_dir="$(sh scripts/release-archive.sh "${{ steps.meta.outputs.archive_version }}" "${dist_dir}")"
           echo "dist_dir=${dist_dir}" >> "${GITHUB_OUTPUT}"
+
+      - name: Publish qdecimal GitHub Package
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          owner="$(printf '%s' "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+          image="ghcr.io/${owner}/${GHCR_IMAGE}"
+          version="${{ steps.meta.outputs.version }}"
+          archive="${{ steps.package.outputs.dist_dir }}/qdecimal-${{ steps.meta.outputs.archive_version }}.tar.gz"
+          checksums="${{ steps.package.outputs.dist_dir }}/checksums.txt"
+
+          printf '%s' "${GITHUB_TOKEN}" | oras login ghcr.io \
+            --username "${GITHUB_ACTOR}" \
+            --password-stdin
+
+          oras push "${image}:${version}" \
+            --artifact-type "application/vnd.meviksry.qdecimal.source.v1+tar" \
+            --annotation "org.opencontainers.image.title=qdecimal" \
+            --annotation "org.opencontainers.image.description=Exact base-10 decimal arithmetic for finance, banking, exchanges, ledgers, and trading systems." \
+            --annotation "org.opencontainers.image.source=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" \
+            --annotation "org.opencontainers.image.url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" \
+            --annotation "org.opencontainers.image.revision=${GITHUB_SHA}" \
+            --annotation "org.opencontainers.image.version=${version}" \
+            --annotation "org.opencontainers.image.licenses=MIT" \
+            "${archive}:application/gzip" \
+            "${checksums}:text/plain"
+
+          if [[ "${GITHUB_REF_TYPE}" == "tag" && "${{ steps.meta.outputs.prerelease }}" == "false" ]]; then
+            oras tag "${image}:${version}" latest
+          elif [[ "${GITHUB_REF_TYPE}" != "tag" ]]; then
+            oras tag "${image}:${version}" nightly
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish qdecimal nightly release
         if: github.ref == 'refs/heads/main'
