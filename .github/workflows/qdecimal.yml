@@ -33,10 +33,12 @@ jobs:
       - name: Configure Go workspace
         shell: bash
         run: |
-          mkdir -p "${RUNNER_TEMP}/qdecimal-go-cache" "${RUNNER_TEMP}/qdecimal-go-path"
+          rm -rf "${RUNNER_TEMP}/qdecimal-go-cache" "${RUNNER_TEMP}/qdecimal-go-path" "${RUNNER_TEMP}/qdecimal-go-tmp"
+          mkdir -p "${RUNNER_TEMP}/qdecimal-go-cache" "${RUNNER_TEMP}/qdecimal-go-path" "${RUNNER_TEMP}/qdecimal-go-tmp"
           {
             echo "GOCACHE=${RUNNER_TEMP}/qdecimal-go-cache"
             echo "GOPATH=${RUNNER_TEMP}/qdecimal-go-path"
+            echo "GOTMPDIR=${RUNNER_TEMP}/qdecimal-go-tmp"
           } >> "${GITHUB_ENV}"
       - uses: actions/setup-go@v5
         with:
@@ -60,10 +62,12 @@ jobs:
       - name: Configure Go workspace
         shell: bash
         run: |
-          mkdir -p "${RUNNER_TEMP}/qdecimal-go-cache" "${RUNNER_TEMP}/qdecimal-go-path"
+          rm -rf "${RUNNER_TEMP}/qdecimal-go-cache" "${RUNNER_TEMP}/qdecimal-go-path" "${RUNNER_TEMP}/qdecimal-go-tmp"
+          mkdir -p "${RUNNER_TEMP}/qdecimal-go-cache" "${RUNNER_TEMP}/qdecimal-go-path" "${RUNNER_TEMP}/qdecimal-go-tmp"
           {
             echo "GOCACHE=${RUNNER_TEMP}/qdecimal-go-cache"
             echo "GOPATH=${RUNNER_TEMP}/qdecimal-go-path"
+            echo "GOTMPDIR=${RUNNER_TEMP}/qdecimal-go-tmp"
           } >> "${GITHUB_ENV}"
       - uses: actions/setup-go@v5
         with:

@@ -31,10 +31,12 @@ jobs:
       - name: Configure Go workspace
         shell: bash
         run: |
-          mkdir -p "${RUNNER_TEMP}/qdecimal-release-go-cache" "${RUNNER_TEMP}/qdecimal-release-go-path"
+          rm -rf "${RUNNER_TEMP}/qdecimal-release-go-cache" "${RUNNER_TEMP}/qdecimal-release-go-path" "${RUNNER_TEMP}/qdecimal-release-go-tmp"
+          mkdir -p "${RUNNER_TEMP}/qdecimal-release-go-cache" "${RUNNER_TEMP}/qdecimal-release-go-path" "${RUNNER_TEMP}/qdecimal-release-go-tmp"
           {
             echo "GOCACHE=${RUNNER_TEMP}/qdecimal-release-go-cache"
             echo "GOPATH=${RUNNER_TEMP}/qdecimal-release-go-path"
+            echo "GOTMPDIR=${RUNNER_TEMP}/qdecimal-release-go-tmp"
           } >> "${GITHUB_ENV}"
       - uses: actions/setup-go@v5
         with:
@@ -105,10 +107,12 @@ jobs:
       - name: Configure Go workspace
         shell: bash
         run: |
-          mkdir -p "${RUNNER_TEMP}/qdecimal-release-go-cache" "${RUNNER_TEMP}/qdecimal-release-go-path"
+          rm -rf "${RUNNER_TEMP}/qdecimal-release-go-cache" "${RUNNER_TEMP}/qdecimal-release-go-path" "${RUNNER_TEMP}/qdecimal-release-go-tmp"
+          mkdir -p "${RUNNER_TEMP}/qdecimal-release-go-cache" "${RUNNER_TEMP}/qdecimal-release-go-path" "${RUNNER_TEMP}/qdecimal-release-go-tmp"
           {
             echo "GOCACHE=${RUNNER_TEMP}/qdecimal-release-go-cache"
             echo "GOPATH=${RUNNER_TEMP}/qdecimal-release-go-path"
+            echo "GOTMPDIR=${RUNNER_TEMP}/qdecimal-release-go-tmp"
           } >> "${GITHUB_ENV}"
       - uses: actions/setup-go@v5
         with:
