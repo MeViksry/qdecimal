@@ -76,7 +76,7 @@ cross-build:
 	printf '%s\n' "qdecimal: cross-build ok ($(CROSS_BUILD_DIR))"
 
 coverage:
-	go test -covermode=atomic -coverprofile="$(COVERPROFILE)" ./...
+	go test -covermode=atomic -coverprofile="$(COVERPROFILE)" .
 	go tool cover -func="$(COVERPROFILE)"
 	@total="$$(go tool cover -func="$(COVERPROFILE)" | awk '/^total:/ { gsub("%", "", $$3); print $$3 }')"; \
 	awk -v total="$$total" -v min="$(COVERAGE_MIN)" 'BEGIN { if ((total + 0) < (min + 0)) { printf "qdecimal: coverage %.1f%% below required %.1f%%\n", total, min; exit 1 } printf "qdecimal: coverage %.1f%% meets required %.1f%%\n", total, min }'

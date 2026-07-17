@@ -60,24 +60,24 @@ jobs:
       - name: Check formatting
         run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
       - name: Verify dependency policy
-        run: make deps
+        run: go run ./internal/qdecimalci deps
       - name: Run race detector
         run: go test -race ./...
       - name: Run coverage
-        run: make coverage
+        run: go run ./internal/qdecimalci coverage
       - name: Run stress suite
-        run: QDECIMAL_STRESS=1 go test -run '^TestStress' ./...
+        run: QDECIMAL_STRESS=1 go run ./internal/qdecimalci stress
       - name: Run fuzz smoke suite
-        run: make fuzz-smoke
+        run: go run ./internal/qdecimalci fuzz-smoke
       - name: Run benchmark smoke suite
-        run: make bench-smoke
+        run: go run ./internal/qdecimalci bench-smoke
       - name: Run go vet
         run: go vet ./...
       - name: Run consumer smoke suite
-        run: make consumer-smoke
+        run: go run ./internal/qdecimalci consumer-smoke
       - name: Run cross-platform compile gate
-        run: make cross-build
+        run: go run ./internal/qdecimalci cross-build
       - name: Run vulnerability scan
-        run: make vuln
+        run: go run ./internal/qdecimalci vuln
       - name: Build
         run: go build ./...
