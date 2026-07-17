@@ -131,8 +131,10 @@ func fuzzSmoke() error {
 		"^FuzzMoneyBinary$",
 		"^FuzzDecimalBSONDocument$",
 	}
+	fuzzTime := getenv("QDECIMAL_FUZZTIME", "5s")
+	fuzzParallel := getenv("QDECIMAL_FUZZ_PARALLEL", "1")
 	for _, target := range targets {
-		if err := run("go", "test", "-run", "^$", "-fuzz", target, "-fuzztime=2s", "."); err != nil {
+		if err := run("go", "test", "-run", "^$", "-fuzz", target, "-fuzztime="+fuzzTime, "-parallel="+fuzzParallel, "."); err != nil {
 			return err
 		}
 	}
