@@ -33,6 +33,7 @@ jobs:
       - name: Configure Go workspace
         shell: bash
         run: |
+          find /tmp -maxdepth 1 -type d \( -name 'go-build*' -o -name 'qdecimal-*' \) -exec rm -rf {} +
           rm -rf "${RUNNER_TEMP}/qdecimal-go-cache" "${RUNNER_TEMP}/qdecimal-go-path" "${RUNNER_TEMP}/qdecimal-go-tmp"
           mkdir -p "${RUNNER_TEMP}/qdecimal-go-cache" "${RUNNER_TEMP}/qdecimal-go-path" "${RUNNER_TEMP}/qdecimal-go-tmp"
           {
@@ -62,6 +63,7 @@ jobs:
       - name: Configure Go workspace
         shell: bash
         run: |
+          find /tmp -maxdepth 1 -type d \( -name 'go-build*' -o -name 'qdecimal-*' \) -exec rm -rf {} +
           rm -rf "${RUNNER_TEMP}/qdecimal-go-cache" "${RUNNER_TEMP}/qdecimal-go-path" "${RUNNER_TEMP}/qdecimal-go-tmp"
           mkdir -p "${RUNNER_TEMP}/qdecimal-go-cache" "${RUNNER_TEMP}/qdecimal-go-path" "${RUNNER_TEMP}/qdecimal-go-tmp"
           {
