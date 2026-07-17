@@ -62,9 +62,7 @@ jobs:
       - name: Verify dependency policy
         run: go run ./internal/qdecimalci deps
       - name: Run race detector
-        env:
-          CGO_ENABLED: '1'
-        run: go test -race ./...
+        run: go run ./internal/qdecimalci race
       - name: Run coverage
         run: go run ./internal/qdecimalci coverage
       - name: Run stress suite

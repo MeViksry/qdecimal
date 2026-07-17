@@ -33,13 +33,15 @@ var crossTargets = []string{
 func main() {
 	log.SetFlags(0)
 	if len(os.Args) < 2 {
-		log.Fatalf("usage: qdecimalci <deps|coverage|stress|fuzz-smoke|bench-smoke|consumer-smoke|cross-build|vuln>")
+		log.Fatalf("usage: qdecimalci <deps|race|coverage|stress|fuzz-smoke|bench-smoke|consumer-smoke|cross-build|vuln>")
 	}
 
 	var err error
 	switch os.Args[1] {
 	case "deps":
 		err = deps()
+	case "race":
+		err = race()
 	case "coverage":
 		err = coverage()
 	case "stress":
@@ -74,6 +76,26 @@ func deps() error {
 	}
 	fmt.Println("qdecimal: dependency policy ok (no external Go modules)")
 	return nil
+}
+
+func race() error {
+	cc, err := goEnv("CC")
+	if err != nil {
+		return err
+	}
+	compiler := firstField(cc)
+	if compiler == "" {
+		return errors.New("qdecimal: race detector requires a C compiler, but go env CC is empty")
+	}
+	if _, err := exec.LookPath(compiler); err != nil {
+		message := fmt.Sprintf("qdecimal: race detector skipped because C compiler %q is not available; install gcc/clang on the self-hosted runner or set QDECIMAL_RACE_STRICT=1 to fail instead", compiler)
+		if strictEnv("QDECIMAL_RACE_STRICT") {
+			return errors.New(message)
+		}
+		githubWarning(message)
+		return run("go", "test", "./...")
+	}
+	return runWithEnv([]string{"CGO_ENABLED=1"}, "go", "test", "-race", "./...")
 }
 
 func coverage() error {
@@ -241,11 +263,44 @@ func combined(name string, args ...string) (string, error) {
 	return out.String(), nil
 }
 
+func goEnv(key string) (string, error) {
+	out, err := combined("go", "env", key)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(out), nil
+}
+
 func getenv(key, fallback string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
 	}
 	return fallback
+}
+
+func firstField(s string) string {
+	fields := strings.Fields(s)
+	if len(fields) == 0 {
+		return ""
+	}
+	return fields[0]
+}
+
+func strictEnv(key string) bool {
+	switch strings.ToLower(strings.TrimSpace(os.Getenv(key))) {
+	case "1", "true", "yes", "on":
+		return true
+	default:
+		return false
+	}
+}
+
+func githubWarning(message string) {
+	if os.Getenv("GITHUB_ACTIONS") == "true" {
+		fmt.Printf("::warning::%s\n", message)
+		return
+	}
+	fmt.Println(message)
 }
 
 func nonEmptyLines(s string) []string {
