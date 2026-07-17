@@ -201,6 +201,9 @@ jobs:
           archive="${{ steps.package.outputs.dist_dir }}/qdecimal-${{ steps.meta.outputs.archive_version }}.tar.gz"
           checksums="${{ steps.package.outputs.dist_dir }}/checksums.txt"
 
+          export HOME="${RUNNER_TEMP}/qdecimal-oras-home"
+          mkdir -p "${HOME}"
+
           printf '%s' "${GITHUB_TOKEN}" | oras login ghcr.io \
             --username "${GITHUB_ACTOR}" \
             --password-stdin
