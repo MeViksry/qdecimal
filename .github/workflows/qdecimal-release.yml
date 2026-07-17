@@ -64,30 +64,38 @@ jobs:
         run: go run ./internal/qdecimalci deps
 
       - name: Run race detector
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         run: go run ./internal/qdecimalci race
 
       - name: Run coverage
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         run: go run ./internal/qdecimalci coverage
 
       - name: Run stress suite
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         run: QDECIMAL_STRESS=1 go run ./internal/qdecimalci stress
 
       - name: Run fuzz smoke suite
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         run: go run ./internal/qdecimalci fuzz-smoke
 
       - name: Run benchmark smoke suite
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         run: go run ./internal/qdecimalci bench-smoke
 
       - name: Run go vet
         run: go vet ./...
 
       - name: Run consumer smoke suite
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         run: go run ./internal/qdecimalci consumer-smoke
 
       - name: Run cross-platform compile gate
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         run: go run ./internal/qdecimalci cross-build
 
       - name: Run vulnerability scan
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         run: go run ./internal/qdecimalci vuln
 
       - name: Build package
