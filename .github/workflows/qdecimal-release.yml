@@ -11,8 +11,6 @@ permissions:
   contents: read
 
 env:
-  GOCACHE: /tmp/qdecimal-release-go-cache
-  GOPATH: /tmp/qdecimal-release-go-path
   GO_VERSION: '1.26.x'
 
 concurrency:
@@ -26,6 +24,9 @@ jobs:
     timeout-minutes: 75
     permissions:
       contents: read
+    env:
+      GOCACHE: ${{ runner.temp }}/qdecimal-release-go-cache
+      GOPATH: ${{ runner.temp }}/qdecimal-release-go-path
     steps:
       - uses: actions/checkout@v4
         with:
@@ -92,6 +93,9 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: write
+    env:
+      GOCACHE: ${{ runner.temp }}/qdecimal-release-go-cache
+      GOPATH: ${{ runner.temp }}/qdecimal-release-go-path
     steps:
       - uses: actions/checkout@v4
         with:

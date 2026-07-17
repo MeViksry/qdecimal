@@ -9,10 +9,6 @@ on:
 permissions:
   contents: read
 
-env:
-  GOCACHE: /tmp/go-cache
-  GOPATH: /tmp/go-path
-
 concurrency:
   group: qdecimal-${{ github.ref }}
   cancel-in-progress: true
@@ -25,6 +21,9 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
+    env:
+      GOCACHE: ${{ runner.temp }}/qdecimal-go-cache
+      GOPATH: ${{ runner.temp }}/qdecimal-go-path
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -49,6 +48,9 @@ jobs:
     timeout-minutes: 60
     permissions:
       contents: read
+    env:
+      GOCACHE: ${{ runner.temp }}/qdecimal-go-cache
+      GOPATH: ${{ runner.temp }}/qdecimal-go-path
     steps:
       - uses: actions/checkout@v4
         with:

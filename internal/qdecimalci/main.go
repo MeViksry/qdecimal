@@ -192,11 +192,14 @@ replace github.com/MeViksry/qdecimal => %s
 }
 
 func crossBuild() error {
-	outDir := getenv("CROSS_BUILD_DIR", filepath.Join(os.TempDir(), "qdecimal-cross-build"))
+	outDir := getenv("CROSS_BUILD_DIR", filepath.Join(tempRoot(), "qdecimal-cross-build"))
 	if err := os.RemoveAll(outDir); err != nil {
 		return err
 	}
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
+		return err
+	}
+	if err := run("go", "clean", "-cache", "-testcache", "-fuzzcache"); err != nil {
 		return err
 	}
 	targets := crossTargets
@@ -204,20 +207,43 @@ func crossBuild() error {
 		targets = strings.Fields(raw)
 	}
 	for _, target := range targets {
-		goos, goarch, ok := strings.Cut(target, "/")
-		if !ok || goos == "" || goarch == "" {
-			return fmt.Errorf("invalid cross target %q", target)
-		}
-		fmt.Printf("qdecimal: cross-build %s/%s\n", goos, goarch)
-		env := []string{"GOOS=" + goos, "GOARCH=" + goarch, "CGO_ENABLED=0"}
-		if err := runWithEnv(env, "go", "test", "-c", "-o", filepath.Join(outDir, "qdecimal-"+goos+"-"+goarch+".test"), "."); err != nil {
-			return err
-		}
-		if err := runWithEnv(env, "go", "test", "-tags", "releasehelper", "-c", "-o", filepath.Join(outDir, "qdecimal-releasehelper-"+goos+"-"+goarch+".test"), "./internal/releasegithub"); err != nil {
+		if err := crossBuildTarget(outDir, target); err != nil {
 			return err
 		}
 	}
 	fmt.Printf("qdecimal: cross-build ok (%s)\n", outDir)
+	return nil
+}
+
+func crossBuildTarget(outDir, target string) error {
+	goos, goarch, ok := strings.Cut(target, "/")
+	if !ok || goos == "" || goarch == "" {
+		return fmt.Errorf("invalid cross target %q", target)
+	}
+
+	fmt.Printf("qdecimal: cross-build %s/%s\n", goos, goarch)
+	targetDir := filepath.Join(outDir, strings.ReplaceAll(target, "/", "-"))
+	if err := os.RemoveAll(targetDir); err != nil {
+		return err
+	}
+	if err := os.MkdirAll(filepath.Join(targetDir, "tmp"), 0o755); err != nil {
+		return err
+	}
+	defer os.RemoveAll(targetDir)
+
+	env := []string{
+		"GOOS=" + goos,
+		"GOARCH=" + goarch,
+		"CGO_ENABLED=0",
+		"GOCACHE=" + filepath.Join(targetDir, "cache"),
+		"GOTMPDIR=" + filepath.Join(targetDir, "tmp"),
+	}
+	if err := runWithEnv(env, "go", "test", "-vet=off", "-c", "-o", filepath.Join(targetDir, "qdecimal.test"), "."); err != nil {
+		return err
+	}
+	if err := runWithEnv(env, "go", "test", "-vet=off", "-tags", "releasehelper", "-c", "-o", filepath.Join(targetDir, "qdecimal-releasehelper.test"), "./internal/releasegithub"); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -276,6 +302,13 @@ func getenv(key, fallback string) string {
 		return value
 	}
 	return fallback
+}
+
+func tempRoot() string {
+	if value := os.Getenv("RUNNER_TEMP"); value != "" {
+		return value
+	}
+	return os.TempDir()
 }
 
 func firstField(s string) string {
