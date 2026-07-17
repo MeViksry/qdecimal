@@ -198,11 +198,13 @@ jobs:
           owner="$(printf '%s' "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
           image="ghcr.io/${owner}/${GHCR_IMAGE}"
           version="${{ steps.meta.outputs.version }}"
-          archive="${{ steps.package.outputs.dist_dir }}/qdecimal-${{ steps.meta.outputs.archive_version }}.tar.gz"
-          checksums="${{ steps.package.outputs.dist_dir }}/checksums.txt"
+          dist_dir="${{ steps.package.outputs.dist_dir }}"
+          archive="qdecimal-${{ steps.meta.outputs.archive_version }}.tar.gz"
+          checksums="checksums.txt"
 
           export HOME="${RUNNER_TEMP}/qdecimal-oras-home"
           mkdir -p "${HOME}"
+          cd "${dist_dir}"
 
           printf '%s' "${GITHUB_TOKEN}" | oras login ghcr.io \
             --username "${GITHUB_ACTOR}" \
