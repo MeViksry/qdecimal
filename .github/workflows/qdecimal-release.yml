@@ -75,6 +75,9 @@ jobs:
       - name: Run consumer smoke suite
         run: make consumer-smoke
 
+      - name: Run cross-platform compile gate
+        run: make cross-build
+
       - name: Run vulnerability scan
         run: make vuln
 

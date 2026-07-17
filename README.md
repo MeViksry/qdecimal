@@ -430,6 +430,7 @@ make audit
 make stress
 make fuzz-smoke
 make bench-smoke
+make cross-build
 make vuln
 make consumer-smoke
 go test -run '^$' -bench . -benchmem ./...
@@ -446,6 +447,9 @@ go test -fuzz='^FuzzDecimalBSONDocument$' -fuzztime=30s .
 tests with `QDECIMAL_STRESS=1`. `make bench-smoke` executes representative
 parser, arithmetic, Fixed64, Money, power, and append-binary benchmarks so hot
 paths keep compiling and publishing cannot drift away from the benchmark suite.
+`make cross-build` compile-checks qdecimal and its checked-in release helper for
+Linux, Windows, macOS, BSD targets, and amd64/386/arm/arm64 class devices
+without requiring separate physical runners for every target.
 The normal test suite runs smaller versions of the same stress checks so CI
 catches regressions quickly, while self-hosted release gates exercise the heavier profile.
 

@@ -13,8 +13,8 @@ The `qdecimal Release` workflow runs on self-hosted runners.
 
 Each release runs formatting checks, dependency-policy checks, unit tests, race
 tests, coverage with a minimum threshold, stress tests, fuzz smoke tests,
-benchmark smoke tests, `go vet`, `govulncheck`, and `go build` before
-publishing.
+benchmark smoke tests, cross-platform compile checks, `go vet`, `govulncheck`,
+and `go build` before publishing.
 The publish job uses the checked-in `internal/releasegithub` helper with a
 job-scoped `contents: write` token instead of a third-party release action, so
 the publish job does not execute external release-publishing action code while holding write credentials. CI and release jobs also define explicit timeouts to avoid stuck jobs.

@@ -3,8 +3,10 @@ COVERAGE_MIN ?= 85.0
 RELEASE_VERSION ?= dry-run
 RELEASE_DIST_DIR ?= /tmp/qdecimal-release-$(RELEASE_VERSION)
 CONSUMER_SMOKE_DIR ?= /tmp/qdecimal-consumer-smoke-default
+CROSS_BUILD_DIR ?= /tmp/qdecimal-cross-build
+CROSS_TARGETS ?= linux/amd64 linux/arm64 linux/arm linux/386 windows/amd64 windows/arm64 windows/386 darwin/amd64 darwin/arm64 freebsd/amd64 freebsd/arm64 openbsd/amd64 netbsd/amd64
 
-.PHONY: fmt fmt-check deps test race vet vuln stress fuzz-smoke fuzz bench-smoke bench build coverage consumer-smoke release-dry-run release-helper-check check audit
+.PHONY: fmt fmt-check deps test race vet vuln stress fuzz-smoke fuzz bench-smoke bench build cross-build coverage consumer-smoke release-dry-run release-helper-check check audit
 
 fmt:
 	gofmt -w .
@@ -60,6 +62,19 @@ bench:
 build:
 	go build ./...
 
+cross-build:
+	@set -eu; \
+	rm -rf "$(CROSS_BUILD_DIR)"; \
+	mkdir -p "$(CROSS_BUILD_DIR)"; \
+	for target in $(CROSS_TARGETS); do \
+		goos="$${target%/*}"; \
+		goarch="$${target#*/}"; \
+		printf '%s\n' "qdecimal: cross-build $${goos}/$${goarch}"; \
+		GOOS="$${goos}" GOARCH="$${goarch}" CGO_ENABLED=0 go test -c -o "$(CROSS_BUILD_DIR)/qdecimal-$${goos}-$${goarch}.test" .; \
+		GOOS="$${goos}" GOARCH="$${goarch}" CGO_ENABLED=0 go test -tags releasehelper -c -o "$(CROSS_BUILD_DIR)/qdecimal-releasehelper-$${goos}-$${goarch}.test" ./internal/releasegithub; \
+	done; \
+	printf '%s\n' "qdecimal: cross-build ok ($(CROSS_BUILD_DIR))"
+
 coverage:
 	go test -covermode=atomic -coverprofile="$(COVERPROFILE)" ./...
 	go tool cover -func="$(COVERPROFILE)"
@@ -77,4 +92,4 @@ release-helper-check:
 
 check: fmt-check deps test race vet build release-helper-check
 
-audit: check coverage stress fuzz-smoke bench-smoke vuln consumer-smoke release-dry-run
+audit: check cross-build coverage stress fuzz-smoke bench-smoke vuln consumer-smoke release-dry-run

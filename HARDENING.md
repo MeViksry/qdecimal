@@ -20,6 +20,8 @@ That target runs:
 - `make stress` for deterministic high-volume and concurrent tests;
 - `make fuzz-smoke` for parser, binary, money, fixed64, and BSON fuzz smoke;
 - `make bench-smoke` for representative hot-path benchmark execution;
+- `make cross-build` for compile-only portability checks across major OS and
+  CPU targets;
 - `make vuln` for Go vulnerability scanning with `govulncheck`;
 - `make consumer-smoke` for external-module import validation;
 - `make release-dry-run` for guarded source archive and checksum creation.
@@ -56,6 +58,7 @@ go test -run '^$' -bench . -benchmem ./...
 | Race-prone global caches | Runtime arithmetic does not mutate package-global precision or factorial tables. | Race detector via `make check`; `TestStressConcurrentHotPaths` |
 | Test visibility drift | `make coverage` produces an atomic coverage profile, function report, and minimum total coverage gate. | `Makefile`, self-hosted CI/release coverage steps |
 | Performance benchmark drift | Representative parser, arithmetic, exact aggregates, Fixed64 aggregates, Fixed64 tick quantization, Fixed64 hot paths, Money, money aggregates, power, append-text, and append-binary benchmarks run in the audit gate. | `make bench-smoke`, self-hosted CI/release benchmark smoke steps |
+| Device and OS portability drift | The core package and checked-in release helper compile with `CGO_ENABLED=0` across Linux, Windows, macOS, BSD targets, and amd64/386/arm/arm64 class devices. Runtime tests still run on the available self-hosted runner. | `make cross-build`, self-hosted CI/release cross-build steps |
 | Fixed-scale hot path | `Fixed64` provides checked int64 operations, tick/lot quantization, range checks, clamps, min/max helpers, sum/average helpers, and zero-allocation append-text for bounded-scale ledger/trading loops. | `fixed64.go`, `TestStressFixed64MatchesDecimal`, Fixed64 tests/benchmarks |
 | Currency mismatch bugs | `Money` validates currency codes and rejects cross-currency arithmetic, aggregates, range checks, clamps, and min/max operations. `MoneyContext` repeats those guards while returning context-scaled outputs. | `Money.sameCurrency`, `SumMoney`, `AvgMoney`, `Money.Between`, `Money.Clamp`, `MinMoney`, `MaxMoney`, `MoneyContext.sameCurrency`, money tests |
 | Allocation total drift | Money allocation preserves the rounded total exactly. | `TestMoneyAllocationPreservesRoundedTotal`, `TestStressMoneyAllocationInvariants` |
